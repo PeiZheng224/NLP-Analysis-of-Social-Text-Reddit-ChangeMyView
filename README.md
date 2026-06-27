@@ -1,237 +1,93 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Hd7a-EsI)
-# HW 5: NLP Analysis of Social Text 
+# HW 5: NLP Analysis of Social Text — r/ChangeMyView
 
----
+**Author:** Pei Zheng · **Pathway:** Basic NLP Analysis
+
+An NLP study of discourse on Reddit's [r/ChangeMyView](https://www.reddit.com/r/changemyview/) (CMV), a community where people post opinions they're willing to have challenged. This project compares the language of original posts (arguments) against the comments (responses) and analyzes sentiment patterns across both.
 
 ## Overview
 
-This assignment focuses on conversations in Reddit's r/ChangeMyView community. You will apply your NLP skills to analyze discourse patterns across linked posts and comments from this community.
+The analysis uses two linked datasets from CMV and applies a full basic-NLP pipeline: data exploration, text cleaning, tokenization, comparative word-frequency analysis, and VADER sentiment analysis, with five visualizations and a written interpretation.
 
-### Learning Objectives
+| Dataset | File | Records | Key fields |
+|---------|------|---------|------------|
+| Posts | `data/cmv_posts.csv` | ~5,000 | `title`, `selftext`, `score`, `num_comments`, `id`, `created_utc` |
+| Comments | `data/cmv_comments.csv` | ~12,106 | `body`, `score`, `link_id` |
 
-- Link and analyze multiple related text documents
-- Compare language patterns between posts (arguments) and comments (responses)  
-- Apply word embeddings to analyze social discourse dynamics
-- Investigate conversation patterns and discussion quality
-- Connect NLP findings to theories of online deliberation and persuasion
+Comments link back to their parent post via `link_id` → `posts.id`.
 
-### Datasets
-
-This analysis uses two linked datasets from Reddit's r/ChangeMyView community:
-
-**Posts Dataset** (`data/changemyview_posts.csv`): 5,000 top-ranked CMV submissions
-- `title`: The CMV post title (opinion to be changed)
-- `selftext`: The post body/content with argument
-- `score`: Reddit upvotes (engagement measure)
-- `num_comments`: Number of comments (discussion level)
-- `id`: Unique post identifier for linking to comments
-
-**Comments Dataset** (`data/cmv_comments.csv`): 12,106 top-rated comments
-- `body`: Comment text content
-- `score`: Comment upvotes
-- `link_id`: Links comment to its parent post
-- Additional metadata for conversation analysis
-
-r/ChangeMyView is a subreddit where people post views they're willing to have challenged, creating an ideal environment for studying reasoned discourse and opinion change.
-
-### Repository Structure
+## Repository Structure
 
 ```
-nlp-analysis-social-text/
-├── README.md                           # This file
-├── requirements.txt                    # Python dependencies
+hw5-nlp-analysis-social-text/
+├── README.md                       # This file
+├── requirements.txt                # Python dependencies
 ├── data/
-│   ├── changemyview_posts.csv         # CMV posts dataset
-│   └── cmv_comments.csv               # CMV comments dataset
+│   ├── cmv_posts.csv               # CMV posts dataset
+│   └── cmv_comments.csv            # CMV comments dataset
 ├── notebooks/
-│   └── nlp_analysis.ipynb     
-└── output/
-    └── (your output files will go here)
+│   └── nlp_analysis.ipynb          # Full analysis notebook
+├── output/
+│   └── analysis_template.md        # Written interpretation template
+└── example_approach/               # Optional RAG/LLM reference (not used in this pathway)
+    ├── 1_cmv_scrape.py
+    └── 2_llm_eval.ipynb
 ```
 
-### Setup Instructions (Local)
+## Methods
 
-1. **Clone this repository** from GitHub Classroom
+The notebook (`notebooks/nlp_analysis.ipynb`) runs through five stages:
 
-2. **Create a conda environment** (recommended):
-   ```bash
-   conda create -n nlp-hw5 python=3.9
-   conda activate nlp-hw5
-   ```
-   
-   Note: If you don't have conda installed, you can get it from [Anaconda](https://www.anaconda.com/products/individual) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (lighter weight).
+1. **Data loading & exploration** — shapes, columns, missing values, and basic statistics (average post and comment length in characters and words), plus distribution plots for post scores and comment lengths.
+2. **Text preprocessing** — a `clean_text` function that lowercases, strips URLs, markdown links, HTML entities, numbers, and punctuation; then NLTK tokenization with English stopword removal.
+3. **Comparative analysis** — top-20 word frequencies for posts vs. comments, side-by-side word clouds, vocabulary size and average word length, and set operations to find words unique to each corpus.
+4. **Sentiment analysis** — NLTK's VADER compound scores applied to posts and comments, with distribution comparison, most positive/negative examples, sentiment-vs-engagement, and average sentiment over time.
+5. **Interpretation** — written findings, an in-depth pattern discussion, social-science applications, and documented challenges.
 
-3. **Install required packages**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Key Findings
 
-4. **Open the notebook**: 
-   - **Jupyter**: `jupyter notebook notebooks/nlp_analysis.ipynb`
-   - **VSCode**: Open the notebook file 
+**Posts vs. comments use different vocabulary.** Words unique to posts skew toward proper nouns, technical terms, policies, and place names (e.g. specific drugs, public figures, foreign laws), reflecting that posts frame specific, often specialized opinions. Comments lean toward slang, informal expressions, and action words — the more immediate, conversational register people use when challenging a view.
 
----
+**Sentiment is bimodal and slightly positive.** Most posts and comments cluster near the extremes (compound ≈ −1 or +1) or at neutral (0), rather than spreading evenly. Average tone leans neutral-to-positive, consistent with CMV's moderation norms for civil discussion. In short, when users hold a clear opinion they tend to express it strongly.
 
-## Assignment: Basic NLP Analysis
+**Collective sentiment shifts over time.** Average monthly post sentiment is not static — it dips into more negative territory in some periods while generally staying above 0. This suggests aggregate mood on the subreddit tracks the broader social context (e.g. periods of economic, health, or political stress) rather than being purely random or individual.
 
-This assignment provides a structured approach to analyzing social discourse patterns in Reddit's r/ChangeMyView community using fundamental NLP techniques.
+## Visualizations
 
-### Required Tasks:
-1. **Data Loading & Basic Exploration**
-   - Successfully load both datasets (posts and comments)
-   - Perform basic data exploration (shape, columns, missing values)
-   - Create simple statistics (average post length, comment counts)
-   - Visualize basic distributions (post scores, comment lengths)
+The notebook produces five figures:
 
-2. **Text Preprocessing**
-   - Clean text data (remove special characters, lowercase)
-   - Tokenize posts and comments
-   - Remove stopwords using NLTK
-   - Create and compare word frequency distributions
+1. Distributions of post scores and comment lengths (characters and words)
+2. Side-by-side word clouds for posts and comments
+3. Sentiment score distribution: posts vs. comments
+4. Post sentiment vs. post score (engagement)
+5. Average post sentiment over time (monthly)
 
-3. **Comparative Analysis**
-   - Find the top 20 most common words in posts vs comments
-   - Create word clouds for posts and comments separately
-   - Calculate basic text statistics (average word length, vocabulary size)
-   - Identify unique words that appear only in posts or only in comments
+## Social Science Relevance
 
-4. **Sentiment Analysis**
-   - Apply a pre-built sentiment analyzer (VADER or TextBlob)
-   - Compare sentiment distributions between posts and comments
-   - Find the most positive and negative posts/comments
-   - Create visualizations of sentiment patterns
+This kind of analysis can surface shared social concerns and shifts in popular language over time. Comparing sentiment and vocabulary between initial posts and successful counter-arguments offers a way to study "what a persuasive argument looks like." More broadly, it shows that online communities can be traced and analyzed at a macro level — which is useful for research, but also raises questions about how such insights could be used to influence audiences.
 
-5. **Interpretation**
-   - Write a 2-paragraph summary of your findings
-   - Discuss one interesting pattern you discovered
-   - Suggest one way these findings could be useful in a social science setting
+## Setup & Usage
 
-### Expected Deliverables:
-- Completed notebook with all code cells executed
-- At least 4 visualizations
-- Written interpretation of findings
-- Documentation of any challenges faced
+```bash
+# (recommended) create an environment
+conda create -n nlp-hw5 python=3.9 && conda activate nlp-hw5
 
-### Stretch Goals (Optional)
+# install dependencies
+pip install -r requirements.txt
 
-For students who complete the basic analysis and want additional challenges:
+# launch the notebook
+jupyter notebook notebooks/nlp_analysis.ipynb
+```
 
-1. **Advanced Text Analysis**
-   - Link posts to their comments using ID columns
-   - Implement TF-IDF to find distinctive vocabulary between posts and comments
-   - Apply named entity recognition to identify key topics
+The notebook downloads the required NLTK resources (`punkt`, `stopwords`, `vader_lexicon`) automatically on first run.
 
-2. **Conversation Dynamics**
-   - Calculate semantic similarity between posts and their comments
-   - Analyze response patterns (agreement vs disagreement language)
-   - Identify high-engagement conversation characteristics
+## Challenges & Notes
 
-3. **Word Embeddings**
-   - Load and apply pre-trained word embeddings (GloVe or Word2Vec)
-   - Calculate semantic distances between key concepts
-   - Visualize word relationships in semantic space
+The main challenge was analytical rather than technical: moving past descriptive statistics to find patterns and connect them to a wider social context, which led to the collective-sentiment-over-time insight. A secondary decision was whether to log-transform the data; after inspecting the raw distributions, a log transform was deemed unnecessary, keeping the sentiment scores on their original scale for clarity.
 
-4. **Machine Learning Applications**
-   - Build a classifier to predict comment engagement levels
-   - Implement topic modeling (LDA) to discover conversation themes
-   - Explore what linguistic features correlate with successful persuasion
+Built with `pandas`, `numpy`, `matplotlib`, `seaborn`, `nltk`, `scikit-learn`, and `wordcloud`.
 
----
+## References
 
-## Optional: Advanced Example Approach
-
-### Exploring Modern NLP with RAG and LLMs
-
-In the `example_approach/` folder, you'll find an example of an approach to analyzing CMV conversations using Retrieval-Augmented Generation (RAG) and Large Language Models (LLMs). This example is **entirely optional** and provided for inspiration only.
-
-**What the example demonstrates:**
-- **Data Collection via API**: Using PRAW (Python Reddit API Wrapper) to collect fresh CMV data with delta tracking
-- **Delta Analysis**: Identifying which comments successfully changed views (marked by delta awards)
-- **RAG Implementation**: Using TF-IDF retrieval to find relevant conversation snippets
-- **LLM Analysis**: Employing Qwen 2.5 to analyze persuasion patterns and rhetorical strategies
-- **Structured Output**: Generating JSON-formatted insights about what makes arguments persuasive
-
-**Key Concepts You Could Adapt (without LLMs):**
-- **Success Metrics**: Analyzing differences between comments that changed views vs those that didn't
-- **Conversation Threading**: Following argument chains from initial post to resolution
-- **Persuasion Patterns**: Identifying linguistic features of successful arguments
-- **Rhetorical Analysis**: Examining ethos, pathos, logos in argumentation
-
-**Important Notes:**
-- This approach requires additional dependencies (PRAW, transformers, torch)
-- LLM inference benefits greatly from GPU access (Google Colab)
-- The focus includes traditional NLP and prompt engineering
-- You can extract ideas without implementing the full stack
-
-**If You're Interested:**
-- Advanced pathway students might incorporate LLM-based analysis
-- You could use simpler methods to explore similar research questions
-- Consider the delta concept in r/changemyview: What language patterns correlate with view changes?
-- Think about how traditional NLP methods could answer similar questions
-
-Remember: This is one possible approach among many. Your creativity in applying NLP techniques to understand online discourse is what matters most.
-
----
-
-## Tips for Success
-
-1. **Start with exploration**: Understand your data before diving into analysis
-2. **Document as you go**: Explain your thinking and choices
-3. **Visualize findings**: Good visualizations tell the story better than numbers
-4. **Think critically**: What do these patterns really mean for online discourse?
-
----
-
-## Common Issues and Solutions
-
-- **Word embeddings loading**: The first time loading GloVe embeddings may take a few minutes and ~200MB download
-- **Dataset linking errors**: Ensure you're using the correct ID columns (`posts['id']` and `comments['link_id']`)
-- **Memory issues with large datasets**: Work with samples if needed, or use the provided subsets
-- **Missing NLTK data**: The notebooks will download required NLTK resources automatically  
-- **Import errors**: Make sure you've installed all packages from requirements.txt, including `gensim`
-- **Empty conversations**: Some posts may have no comments in the dataset - handle these cases gracefully
-
----
-
-## Academic Integrity
-
-- You may use AI tools (ChatGPT, Copilot, etc.) to help with coding, but you must:
-  - Document any AI assistance in code comments
-  - Understand and be able to explain all code you submit
-  - Write your own interpretation and analysis
-- Collaboration is encouraged for understanding concepts, but each student must submit their own work
-- Clearly indicate which pathway you chose at the top of your notebook
-
----
-
-## Submission
-
-2. **Complete all required tasks** for your chosen pathway
-3. **Push to GitHub Classroom** with:
-   - Completed notebook
-   - Any additional output files in the `output/` folder
-   - Clear indication of which pathway you followed
-
----
-
-## Additional Resources
-
-### General NLP:
-- [NLTK Documentation](https://www.nltk.org/)
-- [Scikit-learn Text Feature Extraction](https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction)
-- [Pandas DataFrame Merging](https://pandas.pydata.org/pandas-docs/stable/user_guide/merging.html)
-
-### Word Embeddings:
-- [Gensim Word2Vec Tutorial](https://radimrehurek.com/gensim/models/word2vec.html)
-- [Word Embeddings Guide](https://machinelearningmastery.com/what-are-word-embeddings/)
-- [GloVe: Global Vectors for Word Representation](https://nlp.stanford.edu/projects/glove/)
-
-### Advanced Techniques:
-- [Hugging Face Transformers](https://huggingface.co/transformers/)
-- [spaCy Documentation](https://spacy.io/)
-- [Multi-document NLP Techniques](https://www.aclweb.org/anthology/)
-
-### Online Discourse Research:
-- [CMV Dataset Paper](https://arxiv.org/abs/1602.01103)
-- [Argument Mining Survey](https://www.aclweb.org/anthology/J17-3001/)
-- [Online Deliberation Theory](https://www.annualreviews.org/doi/10.1146/annurev-polisci-032317-092722)
+- CMV dataset paper: https://arxiv.org/abs/1602.01103
+- NLTK VADER sentiment: https://www.nltk.org/
+- r/ChangeMyView: https://www.reddit.com/r/changemyview/
