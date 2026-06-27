@@ -1,4 +1,4 @@
-# HW 5: NLP Analysis of Social Text — r/ChangeMyView
+# NLP Analysis of Social Text — r/ChangeMyView
 
 **Author:** Pei Zheng · **Pathway:** Basic NLP Analysis
 
